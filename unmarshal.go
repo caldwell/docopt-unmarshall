@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strconv"
 )
 
 func DocoptUnmarshall(arguments map[string]interface{}, options interface{}) error {
@@ -33,6 +34,12 @@ func docopt_unmarshall(arguments map[string]interface{}, options interface{}, se
                                a_typ := reflect.TypeOf(a)
                                if a_typ.Kind() == reflect.String && f_typ.Type.Kind() == reflect.Bool {
                                        f_val.SetBool(a != nil)
+                               } else if a_typ.Kind() == reflect.String && f_typ.Type.Kind() == reflect.Int {
+                                       iv, err := strconv.ParseInt(a.(string), 10, 64)
+                                       if err != nil {
+                                               return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+                                       }
+                                       f_val.SetInt(iv)
                                } else {
                                        f_val.Set(reflect.ValueOf(a))
                                }
