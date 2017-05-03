@@ -42,6 +42,12 @@ func docopt_unmarshall(arguments map[string]interface{}, options interface{}, se
 						       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
 					       }
 					       f_val.SetInt(iv)
+				       case reflect.Float32, reflect.Float64:
+					       fv, err := strconv.ParseFloat(a.(string), 64)
+					       if err != nil {
+						       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+					       }
+					       f_val.SetFloat(fv)
 				       default:
 					       f_val.Set(reflect.ValueOf(a))
 				       }
