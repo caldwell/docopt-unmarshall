@@ -32,14 +32,19 @@ func docopt_unmarshall(arguments map[string]interface{}, options interface{}, se
                                return seen, errors.New(fmt.Sprintf("Struct member %s has no corresponding option %s in docopt", f_typ.Name, flag))
                        } else if a != nil {
                                a_typ := reflect.TypeOf(a)
-                               if a_typ.Kind() == reflect.String && f_typ.Type.Kind() == reflect.Bool {
-                                       f_val.SetBool(a != nil)
-                               } else if a_typ.Kind() == reflect.String && f_typ.Type.Kind() == reflect.Int {
-                                       iv, err := strconv.ParseInt(a.(string), 10, 64)
-                                       if err != nil {
-                                               return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
-                                       }
-                                       f_val.SetInt(iv)
+			       if a_typ.Kind() == reflect.String {
+				       switch f_typ.Type.Kind() {
+				       case reflect.Bool:
+					       f_val.SetBool(a != nil)
+				       case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+					       iv, err := strconv.ParseInt(a.(string), 10, 64)
+					       if err != nil {
+						       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+					       }
+					       f_val.SetInt(iv)
+				       default:
+					       f_val.Set(reflect.ValueOf(a))
+				       }
                                } else {
                                        f_val.Set(reflect.ValueOf(a))
                                }
