@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"time"
 )
 
 func DocoptUnmarshall(arguments map[string]interface{}, options interface{}) error {
@@ -37,11 +38,19 @@ func docopt_unmarshall(arguments map[string]interface{}, options interface{}, se
 				       case reflect.Bool:
 					       f_val.SetBool(a != nil)
 				       case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-					       iv, err := strconv.ParseInt(a.(string), 10, 64)
-					       if err != nil {
-						       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+					       if f_typ.Type.String() == "time.Duration" {
+						       dv, err := time.ParseDuration(a.(string))
+						       if err != nil {
+							       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+						       }
+						       f_val.Set(reflect.ValueOf(dv))
+					       } else {
+						       iv, err := strconv.ParseInt(a.(string), 10, 64)
+						       if err != nil {
+							       return seen, errors.New(fmt.Sprintf("%s: %s", flag, err))
+						       }
+						       f_val.SetInt(iv)
 					       }
-					       f_val.SetInt(iv)
 				       case reflect.Float32, reflect.Float64:
 					       fv, err := strconv.ParseFloat(a.(string), 64)
 					       if err != nil {
