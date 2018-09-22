@@ -67,7 +67,8 @@ func docopt_unmarshall(arguments map[string]interface{}, options interface{}, se
                        seen = append(seen, flag)
                }
                if f_val.Type().Kind() == reflect.Struct {
-                       if seen, err := docopt_unmarshall(arguments, f_val.Addr().Interface(), seen); err != nil {
+                       var err error
+                       if seen, err = docopt_unmarshall(arguments, f_val.Addr().Interface(), seen); err != nil {
                                return seen, err
                        }
                }
